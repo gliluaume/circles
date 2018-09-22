@@ -2,7 +2,7 @@
 
 const Circle = require('./circle')
 const frame = require('./frame')
-const geometry = require('../../time-divider/src/modules/geometry') // TODO make a npm module
+const geometry = require('@gliluaume/geometry')
 
 const appRoot = document.querySelector('#svg-circles')
 const frameInfo = frame.getFrame(appRoot)

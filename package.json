@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "webpack-cli --watch --mode=development",
     "test": "standard src/* src/**/* && jest src"
-},
+  },
   "keywords": [
     "svg",
     "grafical",
@@ -22,5 +22,8 @@
     "standard": "^12.0.1",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0"
+  },
+  "dependencies": {
+    "@gliluaume/geometry": "^1.0.0"
   }
 }
