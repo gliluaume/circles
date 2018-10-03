@@ -7,7 +7,7 @@ const geometry = require('@gliluaume/geometry')
 const appRoot = document.querySelector('#svg-circles')
 const frameInfo = frame.getFrame(appRoot)
 const point = frame.getFrameCenter(frameInfo)
-const centers = generate(point, 100)
+const centers = generate(point, 13)
 
 draw(centers, appRoot)
 
@@ -29,13 +29,22 @@ function generate (origin, number) {
   const previous = { ...origin }
   const centers = [ previous ]
   for (let i = 0; i < number; i++) {
-    const coordinates = getCoordinates(
-      centers[centers.length - 1],
-      2 * Circle.RADIUS,
-      randomAngle())
-    centers.push(coordinates)
+    // Dummy way: repeat random angle until you find a good one
+    let candidate = false
+    while (!candidate || isIntersect(candidate, centers)) {
+      candidate = getCoordinates(
+        centers[centers.length - 1],
+        2 * Circle.RADIUS,
+        randomAngle())
+      console.log(i, 'new candidate:', candidate)
+    }
+    centers.push(candidate)
   }
   return centers
+}
+
+function isIntersect (candidate, points) {
+  return points.some(point => distance(candidate, point) < 2 * Circle.RADIUS)
 }
 
 function randomAngle () {
@@ -59,4 +68,9 @@ function getCoordinates (center, radius, angle) {
     translateFrom0,
     rotateAngle
   ], { x: radius, y: 0 })
+}
+
+// TODO move into geometry
+function distance (a, b) {
+  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2))
 }
