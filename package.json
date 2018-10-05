@@ -25,5 +25,8 @@
   },
   "dependencies": {
     "@gliluaume/geometry": "^1.0.0"
+  },
+  "standard": {
+    "env": [ "jest" ]
   }
 }
