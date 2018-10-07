@@ -85,7 +85,25 @@ function excludeIntervals (mainInterval, intervalsToExclude) {
   return intervals.filter((interval) => interval[0] < interval[1])
 }
 
+function excludeAngleRegion (alpha, range) {
+  if (range >= Math.PI) return []
+
+  const twoPi = 2 * Math.PI
+  const angle = alpha % twoPi
+
+  const a = (angle - range) % twoPi
+  const b = (angle + range) % twoPi
+
+  if ((angle - range >= 0) && (angle + range <= twoPi)) {
+    return [[Math.min(a, b), Math.max(a, b)]]
+  }
+
+  const c = (angle - range + twoPi) % twoPi
+  return [[c, twoPi], [0, b]].sort((i, j) => i[0] - j[0])
+}
+
 module.exports = {
   unionUnNormalize,
-  excludeIntervals
+  excludeIntervals,
+  excludeAngleRegion
 }

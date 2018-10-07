@@ -1,6 +1,9 @@
 'use strict'
 
-const { unionUnNormalize, excludeIntervals } = require('./')
+const {
+  unionUnNormalize,
+  excludeIntervals,
+  excludeAngleRegion } = require('./')
 
 describe('unionUnNormalize', () => {
   it('can un normalize a simple interval', () => {
@@ -45,5 +48,30 @@ describe('excludeIntervals', () => {
       const actual = excludeIntervals([0, 10], [[4, 7], [6, 9]])
       expect(actual).toEqual([[0, 4], [9, 10]])
     })
+  })
+})
+
+describe('excludeAngleRegion', () => {
+  const twoPi = 2 * Math.PI
+  it('returns an empty set when range is over 2.PI', () => {
+    const actual = excludeAngleRegion(3, twoPi)
+    expect(actual).toEqual([])
+  })
+  it('returns a single interval when region to exclude is included in [0, 2.PI]', () => {
+    const actual = excludeAngleRegion(3, 1)
+    expect(actual).toEqual([[2, 4]])
+  })
+  it('returns two intervals when only region upper limit is over 2.PI', () => {
+    const actual = excludeAngleRegion(6, 1)
+    expect(actual).toEqual([[0, 7 % twoPi], [5, twoPi]])
+  })
+  it('returns two intervals when only region lower limit is under 0', () => {
+    const actual = excludeAngleRegion(1, 2)
+    const a = twoPi - 1
+    expect(actual).toEqual([[0, 3], [a, twoPi]])
+  })
+  it('returns two intervals when both region limit are outside [0, 2.PI]', () => {
+    const actual = excludeAngleRegion(6, 1)
+    expect(actual).toEqual([[0, 7 % twoPi], [5, twoPi]])
   })
 })

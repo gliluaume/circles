@@ -3,12 +3,15 @@
 const Circle = require('./circle')
 const frame = require('./frame')
 const geometry = require('@gliluaume/geometry')
-const { unionUnNormalize, excludeIntervals } = require('./tools')
+const {
+  unionUnNormalize,
+  excludeIntervals,
+  excludeAngleRegion } = require('./tools')
 
 const appRoot = document.querySelector('#svg-circles')
 const frameInfo = frame.getFrame(appRoot)
 const point = frame.getFrameCenter(frameInfo)
-const centers = generate(point, 1)
+const centers = generate(point, 50)
 
 draw(centers, appRoot)
 
@@ -54,7 +57,7 @@ function searchPossibleAngleIntervals (centers) {
     return distance(centers[centers.length - 1], center) < 3 * Circle.RADIUS
   })
   // debug
-  ;(new Circle(centers[centers.length - 1], 3 * Circle.RADIUS, 'blue')).draw(appRoot)
+  // ;(new Circle(centers[centers.length - 1], 3 * Circle.RADIUS, 'blue')).draw(appRoot)
   console.log('centersOnCircleOfIntersections', centersOnCircleOfIntersections)
 
   const masterCenter = centers[centers.length - 1]
@@ -72,24 +75,22 @@ function searchPossibleAngleIntervals (centers) {
 
   console.log('anglesOfIntersections', anglesOfIntersections)
   // TODO comment savoir si l'offset est positif ou négatif ?
-  const angleOffset = Math.PI / 2
-  const intervalsOfImpossiblesAngles = anglesOfIntersections.map((angle) => {
-    // return [mod2pi(angle), mod2pi(angle + angleOffset)]
-    return [mod2pi(angle - angleOffset), mod2pi(angle + angleOffset)]
-  })
+  const intervalsOfImpossiblesAngles = anglesOfIntersections.reduce((acc, angle) => {
+    const angleOffset = Math.PI / 2
+    const intervals = excludeAngleRegion(angle, angleOffset)
+    intervals.forEach((interval) => acc.push(interval))
+    return acc
+  }, [])
+
+  console.log('intervalsOfImpossiblesAngles', intervalsOfImpossiblesAngles)
   const intervalsOfPossiblesAngles = excludeIntervals([0, 2 * Math.PI], intervalsOfImpossiblesAngles)
 
+  if (intervalsOfPossiblesAngles.length === 0) {
+    throw new Error('No angle found!')
+  }
   console.log('intervalsOfPossiblesAngles', intervalsOfPossiblesAngles)
   return intervalsOfPossiblesAngles
 }
-
-// function isIntersect (candidate, points) {
-//   return points.some(point => distance(candidate, point) < 2 * Circle.RADIUS)
-// }
-
-// function randomAngle () {
-//   return 2 * Math.PI * Math.random()
-// }
 
 /**
  * Calculate cartesian coordinates of a point defined by the intersection of
