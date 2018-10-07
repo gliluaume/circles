@@ -1,18 +1,22 @@
 class Circle {
-  constructor ({ x, y }) {
+  constructor ({ x, y }, radius, color) {
     this.x = x
     this.y = y
-    this.r = 4
+    this.r = radius || 4
+    this.color = color || 'red'
   }
 
-  draw () {
-    return createSvgElement('circle', {
+  draw (svgRoot) {
+    const svgElt = createSvgElement('circle', {
       r: this.r,
       cx: this.x,
       cy: this.y,
-      stroke: 'red',
+      stroke: this.color,
       fill: 'none'
     })
+    if (svgRoot) svgRoot.appendChild(svgElt)
+
+    return svgElt
   }
 }
 

@@ -41,5 +41,9 @@ describe('excludeIntervals', () => {
       const actual = excludeIntervals([0, 10], [[2, 4], [6, 8]])
       expect(actual).toEqual([[0, 2], [4, 6], [8, 10]])
     })
+    it('exclude common parts of excluding intervals too', () => {
+      const actual = excludeIntervals([0, 10], [[4, 7], [6, 9]])
+      expect(actual).toEqual([[0, 4], [9, 10]])
+    })
   })
 })

@@ -8,7 +8,7 @@ const { unionUnNormalize, excludeIntervals } = require('./tools')
 const appRoot = document.querySelector('#svg-circles')
 const frameInfo = frame.getFrame(appRoot)
 const point = frame.getFrameCenter(frameInfo)
-const centers = generate(point, 200)
+const centers = generate(point, 1)
 
 draw(centers, appRoot)
 
@@ -19,9 +19,7 @@ function draw (centers, appRoot) {
       clearInterval(interval)
       return
     }
-    const one = new Circle(centers[index])
-    const circle = one.draw()
-    appRoot.appendChild(circle)
+    (new Circle(centers[index])).draw(appRoot)
     index++
   })
 }
@@ -31,6 +29,7 @@ function generate (origin, number) {
   const centers = [ previous ]
 
   for (let i = 0; i < number; i++) {
+    console.log('iteration', i)
     const anglesIntervals = searchPossibleAngleIntervals(centers)
     const angle = unionUnNormalize(anglesIntervals, Math.random())
     const newCenter = getCoordinates(
@@ -54,7 +53,8 @@ function searchPossibleAngleIntervals (centers) {
   const centersOnCircleOfIntersections = centers.filter((center) => {
     return distance(centers[centers.length - 1], center) < 3 * Circle.RADIUS
   })
-
+  // debug
+  ;(new Circle(centers[centers.length - 1], 3 * Circle.RADIUS, 'blue')).draw(appRoot)
   console.log('centersOnCircleOfIntersections', centersOnCircleOfIntersections)
 
   const masterCenter = centers[centers.length - 1]
