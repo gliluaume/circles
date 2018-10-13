@@ -12,7 +12,7 @@ const appRoot = document.querySelector('#svg-circles')
 const frameInfo = frame.getFrame(appRoot)
 const point = frame.getFrameCenter(frameInfo)
 
-draw(point, 200, frameInfo, appRoot)
+draw(point, 2000, frameInfo, appRoot)
 
 function draw (origin, number, frameInfo, appRoot, delay = 0) {
   const generator = generate(origin, number, frameInfo)
@@ -32,13 +32,28 @@ function * generate (origin, number, frameInfo) {
 
   for (let i = 0; i < number; i++) {
     console.log('iteration', i, centers.length)
-    if (isCloseToFrameEdges(centers[centers.length - 1], frameInfo, Circle.RADIUS)) {
-      throw new Error('Too close to the edges!')
+    let refIndex = centers.length - 1
+    if (isCloseToFrameEdges(centers[refIndex], frameInfo, 2.5 * Circle.RADIUS)) {
+      refIndex = Math.floor(Math.random() * (centers.length - 1))
     }
-    const anglesIntervals = searchPossibleAngleIntervals(centers, frameInfo)
+    // TODO refactor
+    let trial = 0
+    let anglesIntervals = searchPossibleAngleIntervals(centers, refIndex)
+    while (anglesIntervals === -1) {
+      refIndex = Math.floor(Math.random() * (centers.length - 1))
+      anglesIntervals = searchPossibleAngleIntervals(centers, refIndex)
+      trial++
+      if (trial > 10) {
+        throw new Error('Not found!')
+      }
+    }
+    if (anglesIntervals === -1) {
+      refIndex = Math.floor(Math.random() * (centers.length - 1))
+    }
+
     const angle = unionUnNormalize(anglesIntervals, Math.random())
     const center = getCoordinates(
-      centers[centers.length - 1],
+      centers[refIndex],
       2 * Circle.RADIUS,
       angle)
     centers.push(center)
@@ -51,17 +66,19 @@ function * generate (origin, number, frameInfo) {
  * This interval is a part of [0, 2*PI[
  * Circle of intersection is a circle of center as last center and radius is 3 x R
  * @param {*} centers
- * @param {*} frameInfo
  */
-function searchPossibleAngleIntervals (centers, frameInfo) {
+function searchPossibleAngleIntervals (centers, refIndex = -1) {
+  const startIndex = refIndex === -1
+    ? centers.length - 1
+    : refIndex
   const centersOnCircleOfIntersections = centers.filter((center) => {
-    return distance(centers[centers.length - 1], center) < 3 * Circle.RADIUS
+    return distance(centers[startIndex], center) < 3 * Circle.RADIUS
   })
   // debug
-  // ;(new Circle(centers[centers.length - 1], 3 * Circle.RADIUS, 'blue')).draw(appRoot)
+  // ;(new Circle(centers[startIndex], 3 * Circle.RADIUS, 'blue')).draw(appRoot)
   console.log('centersOnCircleOfIntersections', centersOnCircleOfIntersections)
 
-  const masterCenter = centers[centers.length - 1]
+  const masterCenter = centers[startIndex]
   const anglesOfIntersections = centersOnCircleOfIntersections
     .slice(0, centersOnCircleOfIntersections.length - 1)
     .map((center) => {
@@ -87,7 +104,8 @@ function searchPossibleAngleIntervals (centers, frameInfo) {
   const intervalsOfPossiblesAngles = excludeIntervals([0, 2 * Math.PI], intervalsOfImpossiblesAngles)
 
   if (intervalsOfPossiblesAngles.length === 0) {
-    throw new Error('No angle found!')
+    // throw new Error('No angle found!')
+    return -1
   }
   console.log('intervalsOfPossiblesAngles', intervalsOfPossiblesAngles)
   return intervalsOfPossiblesAngles
