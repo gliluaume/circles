@@ -119,10 +119,6 @@ function distance (a, b) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2))
 }
 
-function mod2pi (angle) {
-  return angle % (2 * Math.PI)
-}
-
 // TODO (re-)move
 /**
  * Search a value in an interval by dichotomy
