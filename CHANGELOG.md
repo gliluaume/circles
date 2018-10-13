@@ -7,3 +7,6 @@ Add no collision with other circles constraint for new center position
 
 ## v0.3.0
 Provide real time drawing (using generator)
+
+## v0.4.0
+Restrict drawing in SVG box

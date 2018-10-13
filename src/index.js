@@ -12,10 +12,10 @@ const appRoot = document.querySelector('#svg-circles')
 const frameInfo = frame.getFrame(appRoot)
 const point = frame.getFrameCenter(frameInfo)
 
-draw(point, 200, appRoot)
+draw(point, 200, frameInfo, appRoot)
 
-function draw (origin, number, appRoot) {
-  const generator = generate(origin, number)
+function draw (origin, number, frameInfo, appRoot, delay = 0) {
+  const generator = generate(origin, number, frameInfo)
   const interval = setInterval(() => {
     const center = generator.next().value
     if (!center) {
@@ -23,16 +23,19 @@ function draw (origin, number, appRoot) {
       return
     }
     (new Circle(center)).draw(appRoot)
-  })
+  }, delay)
 }
 
-function * generate (origin, number) {
+function * generate (origin, number, frameInfo) {
   const previous = { ...origin }
   const centers = [ previous ]
 
   for (let i = 0; i < number; i++) {
     console.log('iteration', i, centers.length)
-    const anglesIntervals = searchPossibleAngleIntervals(centers)
+    if (isCloseToFrameEdges(centers[centers.length - 1], frameInfo, Circle.RADIUS)) {
+      throw new Error('Too close to the edges!')
+    }
+    const anglesIntervals = searchPossibleAngleIntervals(centers, frameInfo)
     const angle = unionUnNormalize(anglesIntervals, Math.random())
     const center = getCoordinates(
       centers[centers.length - 1],
@@ -48,8 +51,9 @@ function * generate (origin, number) {
  * This interval is a part of [0, 2*PI[
  * Circle of intersection is a circle of center as last center and radius is 3 x R
  * @param {*} centers
+ * @param {*} frameInfo
  */
-function searchPossibleAngleIntervals (centers) {
+function searchPossibleAngleIntervals (centers, frameInfo) {
   const centersOnCircleOfIntersections = centers.filter((center) => {
     return distance(centers[centers.length - 1], center) < 3 * Circle.RADIUS
   })
@@ -111,6 +115,14 @@ function getCoordinates (center, radius, angle) {
 /**************************************************
  * TOOLS TO MOVE
 ***************************************************/
+// TODO move into geometry (?)
+function isCloseToFrameEdges (point, frameInfo, margin) {
+  return (Math.abs(point.x - frameInfo.xmin) < margin) ||
+    (Math.abs(point.x - frameInfo.xmax) < margin) ||
+    (Math.abs(point.y - frameInfo.ymin) < margin) ||
+    (Math.abs(point.y - frameInfo.ymax) < margin)
+}
+
 // TODO move into geometry
 function distance (a, b) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2))
