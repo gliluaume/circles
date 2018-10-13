@@ -11,41 +11,38 @@ const {
 const appRoot = document.querySelector('#svg-circles')
 const frameInfo = frame.getFrame(appRoot)
 const point = frame.getFrameCenter(frameInfo)
-const centers = generate(point, 50)
 
-draw(centers, appRoot)
+draw(point, 200, appRoot)
 
-function draw (centers, appRoot) {
-  let index = 0
+function draw (origin, number, appRoot) {
+  const generator = generate(origin, number)
   const interval = setInterval(() => {
-    if (index >= centers.length) {
+    const center = generator.next().value
+    if (!center) {
       clearInterval(interval)
       return
     }
-    (new Circle(centers[index])).draw(appRoot)
-    index++
+    (new Circle(center)).draw(appRoot)
   })
 }
 
-function generate (origin, number) {
+function * generate (origin, number) {
   const previous = { ...origin }
   const centers = [ previous ]
 
   for (let i = 0; i < number; i++) {
-    console.log('iteration', i)
+    console.log('iteration', i, centers.length)
     const anglesIntervals = searchPossibleAngleIntervals(centers)
     const angle = unionUnNormalize(anglesIntervals, Math.random())
-    const newCenter = getCoordinates(
+    const center = getCoordinates(
       centers[centers.length - 1],
       2 * Circle.RADIUS,
       angle)
-    centers.push(newCenter)
+    centers.push(center)
+    yield center
   }
-
-  console.log('centers', centers)
-
-  return centers
 }
+
 /**
  * Assume that all possible angles to avoid intersection are in a simple interval
  * This interval is a part of [0, 2*PI[
