@@ -4,14 +4,32 @@
   <title>Circles</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<style>
+.flex-container {
+	display: flex;
+	flex-direction: row;
+}
+.flex-container > .flex-item {
+	flex: auto;
+  padding-right: 1em;
+}
+</style>
 <body>
-  <div id="box"></div>
-  <svg xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    width="500"
-    height="400"
-    id="svg-circles">
-  </svg>
+  <div class="flex-container">
+    <div class="flex-item">
+      <svg xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="500"
+        height="400"
+        id="svg-circles">
+      </svg>
+    </div>
+    <div class="flex-item">
+      <a href="https://github.com/gliluaume/circles.git">
+        <img src="GitHub-Mark-32px.png" alt="repo">
+      </a>
+    </div>
+  </div>
 </body>
 <script src="dist/main.js"></script>
 </html>
